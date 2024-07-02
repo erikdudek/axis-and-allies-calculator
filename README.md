@@ -9,6 +9,9 @@ the different likely outcomes.
 ## Development
 This is a React app that manages dependencies using Yarn.
 
+yarn v1.22.22
+node.js v14.21.3
+
 To run locally:
 ```
 $ yarn install
