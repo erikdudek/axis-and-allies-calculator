@@ -9,14 +9,29 @@ import {
   DestroyerUnit,
   SubmarineUnit,
   TransportUnit,
+  TwoHPUnit,
 } from "./unit.js";
 
-let basicUnit = function (_) {
-  return new Unit(this.attack, this.defense, this.cost, this.domain);
+let basicUnit = function (buildState) {
+  return new Unit(
+    this.attack,
+    this.defense,
+    this.cost,
+    this.domain,
+    buildState.isAttacker,
+    buildState.modCount
+  );
 };
 
-let airUnit = function (_) {
-  return new AirUnit(this.attack, this.defense, this.cost, this.domain);
+let airUnit = function (buildState) {
+  return new AirUnit(
+    this.attack,
+    this.defense,
+    this.cost,
+    this.domain,
+    buildState.isAttacker,
+    buildState.modCount
+  );
 };
 
 export default {
@@ -28,31 +43,15 @@ export default {
     cost: 6,
     move: 1,
     domain: "land",
+    hp: 1,
     factory: function (buildState) {
       return new InfantryUnit(
         this.attack,
         this.defense,
         this.cost,
         this.domain,
-        buildState.numArtyLeft-- > 0
-      );
-    },
-    valid: valid.landUnit,
-  },
-  SupportedInfantry: {
-    name: "Sup. Infantry",
-    symbol: "S_I",
-    attack: 3,
-    defense: 5,
-    cost: 6,
-    move: 1,
-    domain: "land",
-    factory: function (buildState) {
-      return new InfantryUnit(
-        this.attack,
-        this.defense,
-        this.cost,
-        this.domain,
+        buildState.isAttacker,
+        buildState.modCount,
         buildState.numArtyLeft-- > 0
       );
     },
@@ -66,15 +65,8 @@ export default {
     cost: 4,
     move: 0,
     domain: "land",
-    factory: function (buildState) {
-      return new InfantryUnit(
-        this.attack,
-        this.defense,
-        this.cost,
-        this.domain,
-        buildState.numArtyLeft-- > 0
-      );
-    },
+    hp: 1,
+    factory: basicUnit,
     valid: valid.landUnit,
   },
   "Mech.infantry": {
@@ -85,6 +77,7 @@ export default {
     cost: 8,
     move: 2,
     domain: "land",
+    hp: 1,
     factory: function (buildState) {
       return new InfantryUnit(
         this.attack,
@@ -104,17 +97,7 @@ export default {
     cost: 8,
     move: 1,
     domain: "land",
-    factory: basicUnit,
-    valid: valid.landUnit,
-  },
-  artillery1: {
-    name: "Artillery+1",
-    symbol: "A1",
-    attack: 5,
-    defense: 5,
-    cost: 8,
-    move: 1,
-    domain: "land",
+    hp: 1,
     factory: basicUnit,
     valid: valid.landUnit,
   },
@@ -126,7 +109,29 @@ export default {
     cost: 12,
     move: 2,
     domain: "land",
+    hp: 1,
     factory: basicUnit,
+    valid: valid.landUnit,
+  },
+  tankTwoHP: {
+    name: "Tank(2HP)",
+    symbol: "T2",
+    attack: 6,
+    defense: 6,
+    cost: 12,
+    move: 2,
+    domain: "land",
+    hp: 2,
+    factory: function (buildState) {
+      return new TwoHPUnit(
+        this.attack,
+        this.defense,
+        this.cost,
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
+      );
+    },
     valid: valid.landUnit,
   },
   aa: {
@@ -137,8 +142,16 @@ export default {
     cost: 10,
     move: 1,
     domain: "land",
-    factory: function (_) {
-      return new AAUnit(this.attack, this.defense, this.cost, this.domain);
+    hp: 1,
+    factory: function (buildState) {
+      return new AAUnit(
+        this.attack,
+        this.defense,
+        this.cost,
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
+      );
     },
     valid: valid.antiair,
   },
@@ -150,6 +163,7 @@ export default {
     cost: 20,
     move: 4,
     domain: "air",
+    hp: 1,
     factory: airUnit,
     valid: valid.always,
   },
@@ -161,6 +175,7 @@ export default {
     cost: 22,
     move: 4,
     domain: "air",
+    hp: 1,
     factory: airUnit,
     valid: valid.always,
   },
@@ -172,6 +187,7 @@ export default {
     cost: 22,
     move: 4,
     domain: "air",
+    hp: 1,
     factory: airUnit,
     valid: valid.always,
   },
@@ -183,6 +199,7 @@ export default {
     cost: 24,
     move: 6,
     domain: "air",
+    hp: 1,
     factory: airUnit,
     valid: valid.always,
   },
@@ -194,12 +211,15 @@ export default {
     cost: 12,
     move: 2,
     domain: "sea",
-    factory: function (_) {
+    hp: 1,
+    factory: function (buildState) {
       return new SubmarineUnit(
         this.attack,
         this.defense,
         this.cost,
-        this.domain
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
       );
     },
     valid: valid.seaUnit,
@@ -212,12 +232,15 @@ export default {
     cost: 14,
     move: 2,
     domain: "sea",
-    factory: function (_) {
+    hp: 1,
+    factory: function (buildState) {
       return new TransportUnit(
         this.attack,
         this.defense,
         this.cost,
-        this.domain
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
       );
     },
     valid: valid.transport,
@@ -230,12 +253,15 @@ export default {
     cost: 16,
     move: 2,
     domain: "sea",
-    factory: function (_) {
+    hp: 1,
+    factory: function (buildState) {
       return new DestroyerUnit(
         this.attack,
         this.defense,
         this.cost,
-        this.domain
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
       );
     },
     valid: valid.seaUnit,
@@ -248,12 +274,15 @@ export default {
     cost: 16,
     move: 2,
     domain: "sea",
-    factory: function (_) {
+    hp: 1,
+    factory: function (buildState) {
       return new DestroyerUnit(
         this.attack,
         this.defense,
         this.cost,
-        this.domain
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
       );
     },
     valid: valid.seaUnit,
@@ -266,8 +295,16 @@ export default {
     cost: 24,
     move: 2,
     domain: "sea",
-    factory: function (_) {
-      return new BombardUnit(this.attack, this.defense, this.cost, this.domain);
+    hp: 1,
+    factory: function (buildState) {
+      return new BombardUnit(
+        this.attack,
+        this.defense,
+        this.cost,
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
+      );
     },
     valid: valid.bombard,
   },
@@ -279,7 +316,17 @@ export default {
     cost: 32,
     move: 2,
     domain: "sea",
-    factory: basicUnit,
+    hp: 2,
+    factory: function (buildState) {
+      return new TwoHPUnit(
+        this.attack,
+        this.defense,
+        this.cost,
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
+      );
+    },
     valid: valid.seaUnit,
   },
   battleship: {
@@ -290,12 +337,15 @@ export default {
     cost: 40,
     move: 2,
     domain: "sea",
-    factory: function (_) {
+    hp: 2,
+    factory: function (buildState) {
       return new BattleshipUnit(
         this.attack,
         this.defense,
         this.cost,
-        this.domain
+        this.domain,
+        buildState.isAttacker,
+        buildState.modCount
       );
     },
     valid: valid.bombard,

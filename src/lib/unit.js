@@ -1,16 +1,18 @@
 function roll() {
-    return Math.floor(Math.random() * 12) + 1;
-	// Updated *6 to *12
+  return Math.floor(Math.random() * 12) + 1;
+  // Updated *6 to *12
 }
 
 export class Unit {
-  constructor(attack, defense, cost, domain) {
+  constructor(attack, defense, cost, domain, hp, isAttacker, modCount) {
     this.attack = attack;
     this.defense = defense;
     this.cost = cost;
     this.domain = domain;
     this.hp = 1;
     this.rolledThisRound = false;
+    this.isAttacker = isAttacker;
+    this.modCount = modCount;
   }
 
   get canBeHitByAA() {
@@ -29,20 +31,22 @@ export class Unit {
     return false;
   }
 
-  rollAttack() {
-    if (this.rolledThisRound)
-      return false;
+  rollAttack(modcount) {
+    if (this.rolledThisRound) return false;
+
+    console.log(this.modCount);
 
     this.rolledThisRound = true;
-    return roll() <= this.attack;
+    return roll() <= this.attack + this.modCount;
   }
 
-  rollDefense() {
-    if (this.rolledThisRound)
-      return false;
+  rollDefense(modcount) {
+    if (this.rolledThisRound) return false;
+
+    //console.log(modcount);
 
     this.rolledThisRound = true;
-    return roll() <= this.defense;
+    return roll() <= this.defense + this.modCount;
   }
 
   rollBombard() {
@@ -67,22 +71,35 @@ export class Unit {
   }
 
   clone() {
-    return new this.__proto__.constructor(this.attack, this.defense,
-                                          this.cost, this.domain);
+    return new this.__proto__.constructor(
+      this.attack,
+      this.defense,
+      this.cost,
+      this.domain,
+      this.isAttacker,
+      this.modCount
+    );
   }
-};
+}
 
 export class InfantryUnit extends Unit {
-  constructor(attack, defense, cost, domain, hasArty) {
-    super(hasArty ? attack + 1 : attack, defense, cost, domain);
+  constructor(attack, defense, cost, domain, isAttacker, modCount, hasArty) {
+    super(
+      hasArty ? attack + 1 : attack,
+      defense,
+      cost,
+      domain,
+      isAttacker,
+      modCount
+    );
   }
-};
+}
 
 export class AirUnit extends Unit {
   get canBeHitByAA() {
     return true;
   }
-};
+}
 
 export class AAUnit extends Unit {
   get removedLast() {
@@ -93,26 +110,31 @@ export class AAUnit extends Unit {
     let hits = 0;
     let i = 0;
     for (; i < Math.min(airUnitsRemaining, 3); i++) {
-      if (roll() == 1)
-        hits++;
+      if (roll() == 1) hits++;
     }
 
     return [hits, i];
   }
-};
+}
 
 export class BombardUnit extends Unit {
   rollBombard() {
     return this.rollAttack();
   }
-};
-
-export class BattleshipUnit extends BombardUnit {
-  constructor(attack, defense, cost, domain) {
-    super(attack, defense, cost, domain);
+}
+export class TwoHPUnit extends Unit {
+  constructor(attack, defense, cost, domain, isAttacker, modCount) {
+    super(attack, defense, cost, domain, isAttacker, modCount);
     this.hp = 2;
   }
-};
+}
+
+export class BattleshipUnit extends BombardUnit {
+  constructor(attack, defense, cost, domain, isAttacker, modCount) {
+    super(attack, defense, cost, domain, isAttacker, modCount);
+    this.hp = 2;
+  }
+}
 
 export class DestroyerUnit extends Unit {
   get detectsSubmarines() {

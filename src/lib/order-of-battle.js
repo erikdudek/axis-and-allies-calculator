@@ -86,7 +86,11 @@ export class OrderOfBattle {
       ([_, counts]) => counts.count > 0
     );
   }
-
+  modCounts(side) {
+    return Array.from(this.units[side].entries()).filter(
+      ([_, counts]) => counts.modcount
+    );
+  }
   clear(side) {
     this.units[side] = new Map();
     return this;

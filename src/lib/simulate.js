@@ -1,39 +1,42 @@
-import * as util from './util.js';
-import { OrderOfBattle } from './order-of-battle.js';
-import { ATTACKER_KEY, DEFENDER_KEY } from './simulation-results.js';
+import * as util from "./util.js";
+import { OrderOfBattle } from "./order-of-battle.js";
+import { ATTACKER_KEY, DEFENDER_KEY } from "./simulation-results.js";
 
-function buildUnits(unitCounts, unitConfig) {
-  let numArty = unitCounts.has('artillery') ? unitCounts.get('artillery') : 0;
-  let buildState = {
-    numArtyLeft: numArty
-  };
+function buildUnits(unitCounts, unitConfig, isAttacker) {
+  let numArty = unitCounts.has("artillery") ? unitCounts.get("artillery") : 0;
 
-  let units = Array.from(unitCounts.entries()).map(([unitType, count]) => {
-    if (!(unitType in unitConfig))
-      throw `Unknown unit type: ${unitType}`;
+  // This goes through each of the units and crating them
+  // One example of this loop is unitType = "infantry", counts = { count: 2, modCount: 1 }
+  // or unitType = "artillery", counts = { count: 2, modCount: 1 }
+  let units = Array.from(unitCounts.entries()).map(([unitType, counts]) => {
+    if (!(unitType in unitConfig)) throw `Unknown unit type: ${unitType}`;
+
+    let buildState = {
+      numArtyLeft: numArty,
+      isAttacker: isAttacker,
+      modCount: unitCounts.get(unitType).modCount,
+    };
 
     let stats = unitConfig[unitType];
-    return Array(count).fill(null).map(() => (
-      stats.factory(buildState)
-    ));
+    return Array(counts)
+      .fill(null)
+      .map(() => stats.factory(buildState));
   });
 
   // Flatten
+
   return units.reduce((a, b) => a.concat(b), []);
 }
 
 // Conquest successful if there are no defending units and there is an
 // attacking unit that can occupy the territory.
 function wasConquest(attackingUnits, defendingUnits, battleDomain) {
-  if (defendingUnits.length > 0)
-    return false;
+  if (defendingUnits.length > 0) return false;
 
-  if (battleDomain == 'air')
-    return false;                        // Air units can't conquer territory
-  else if (battleDomain == 'land')
-    return attackingUnits.some(u => u.domain == 'land');
-  else
-    return attackingUnits.some(u => u.domain == 'sea');
+  if (battleDomain == "air") return false; // Air units can't conquer territory
+  else if (battleDomain == "land")
+    return attackingUnits.some((u) => u.domain == "land");
+  else return attackingUnits.some((u) => u.domain == "sea");
 }
 
 // Hit assignment priority:
@@ -45,12 +48,16 @@ function wasConquest(attackingUnits, defendingUnits, battleDomain) {
 // Defender
 // 1. Battleship with 2 hp
 // 2. Lowest cost unit
-function assignHits(units, numHits, battleDomain = null,
-                    prioritizeConquest = false)
-{
-  // First, hit 2 hp battleships
+function assignHits(
+  units,
+  numHits,
+  battleDomain = null,
+  prioritizeConquest = false
+) {
+  // First, hit 2 hp battleships should work the same for 2HP other units
   for (let i = 0; i < units.length; i++) {
     let u = units[i];
+
     if (u.hp > 1 && numHits > 0) {
       u.takeHit();
       numHits--;
@@ -63,56 +70,53 @@ function assignHits(units, numHits, battleDomain = null,
   if (prioritizeConquest && battleDomain) {
     for (let i = 0; i < units.length; i++) {
       let u = units[i];
-      if (u.hp > 0 && u.domain == battleDomain)
-        designatedSurvivor = u;
+      if (u.hp > 0 && u.domain == battleDomain) designatedSurvivor = u;
     }
   }
 
   // Now hit units in ascending cost order (array is already sorted this way)
   for (let i = 0; i < units.length; i++) {
     let u = units[i];
-    if (numHits > 0 && u != designatedSurvivor && u.takeHit())
-      numHits--;
+    if (numHits > 0 && u != designatedSurvivor && u.takeHit()) numHits--;
   }
 
   // If we have hits left, designated survivor gets hit
-  if (designatedSurvivor && numHits > 0)
-    designatedSurvivor.takeHit();
+  if (designatedSurvivor && numHits > 0) designatedSurvivor.takeHit();
 }
 
 // Returns true/false.
 // Should be good as long as we don't have all subs on one side and all planes
 // on the other.
 function hitsPossible(attackingUnits, defendingUnits) {
-  let allAtkSub = attackingUnits.every(u => u.isSubmarine);
-  let allAtkPlanes = attackingUnits.every(u => u.domain == 'air');
-  let allDefSub = defendingUnits.every(u => u.isSubmarine);
-  let allDefPlanes = defendingUnits.every(u => u.domain == 'air');
+  let allAtkSub = attackingUnits.every((u) => u.isSubmarine);
+  let allAtkPlanes = attackingUnits.every((u) => u.domain == "air");
+  let allDefSub = defendingUnits.every((u) => u.isSubmarine);
+  let allDefPlanes = defendingUnits.every((u) => u.domain == "air");
 
   return !((allAtkSub && allDefPlanes) || (allAtkPlanes && allDefSub));
 }
 
-function simulateOneBattle(attackingUnits,
-                           defendingUnits,
-                           battleDomain,
-                           options)
-{
+function simulateOneBattle(
+  attackingUnits,
+  defendingUnits,
+  battleDomain,
+  options
+) {
   let lostAttackingUnits = [];
   let lostDefendingUnits = [];
 
   // Handle bombardment -------------------------------------------------------
-  if (battleDomain == 'land')
-  {
-    let numHits = util.sum(attackingUnits, u => u.rollBombard());
+  if (battleDomain == "land") {
+    let numHits = util.sum(attackingUnits, (u) => u.rollBombard());
     assignHits(defendingUnits, numHits);
 
     // Sea units have played their role, time to say goodbye
-    util.remove(attackingUnits, u => u.domain == 'sea');
+    util.remove(attackingUnits, (u) => u.domain == "sea");
   }
 
   // Handle AA ----------------------------------------------------------------
   // Roll once for each air unit but no more.
-  let numAirUnits = util.sum(attackingUnits, u => u.canBeHitByAA);
+  let numAirUnits = util.sum(attackingUnits, (u) => u.canBeHitByAA);
   let aaHits = 0;
   for (let i = 0; i < defendingUnits.length; i++) {
     let unit = defendingUnits[i];
@@ -122,138 +126,170 @@ function simulateOneBattle(attackingUnits,
   }
 
   // Hit air units get no chance to defend
-  assignHits(attackingUnits.filter(u => u.canBeHitByAA), aaHits);
-  lostAttackingUnits.push(...util.remove(attackingUnits, u => u.hp <= 0));
+  assignHits(
+    attackingUnits.filter((u) => u.canBeHitByAA),
+    aaHits
+  );
+  lostAttackingUnits.push(...util.remove(attackingUnits, (u) => u.hp <= 0));
 
   // Battle proper ------------------------------------------------------------
   // Put units removed last aside (transports / AA)
-  let removeLast = util.remove(defendingUnits, u => u.removedLast);
-	let roundcount = 0;
+  let removeLast = util.remove(defendingUnits, (u) => u.removedLast);
+  let roundcount = 0;
   // While there are still units on both sides:
-  while (attackingUnits.length > 0 && defendingUnits.length > 0
-          && hitsPossible(attackingUnits, defendingUnits))
-  {
-
+  while (
+    attackingUnits.length > 0 &&
+    defendingUnits.length > 0 &&
+    hitsPossible(attackingUnits, defendingUnits)
+  ) {
     // Reset rolledThisRound
-    for (let i = 0; i < attackingUnits.length; i++)
-      attackingUnits[i].reset();
-    for (let i = 0; i < defendingUnits.length; i++)
-      defendingUnits[i].reset();
+    for (let i = 0; i < attackingUnits.length; i++) attackingUnits[i].reset();
+    for (let i = 0; i < defendingUnits.length; i++) defendingUnits[i].reset();
 
     // Check for destroyers
-    let isAtkDestroyer = attackingUnits.some(u => u.detectsSubmarines);
-    let isDefDestroyer = defendingUnits.some(u => u.detectsSubmarines);
+    let isAtkDestroyer = attackingUnits.some((u) => u.detectsSubmarines);
+    let isDefDestroyer = defendingUnits.some((u) => u.detectsSubmarines);
 
     // Handle submarines
-    let atkSubHits = util.sum(attackingUnits.filter(u => u.isSubmarine),
-                              u => u.rollAttack());
-    let defSubHits = util.sum(defendingUnits.filter(u => u.isSubmarine),
-                              u => u.rollDefense());
+    let atkSubHits = util.sum(
+      attackingUnits.filter((u) => u.isSubmarine),
+      (u) => u.rollAttack()
+    );
+    let defSubHits = util.sum(
+      defendingUnits.filter((u) => u.isSubmarine),
+      (u) => u.rollDefense()
+    );
 
-    assignHits(defendingUnits.filter(u => u.domain != 'air'),  // Can't hit air
-               atkSubHits);
-    assignHits(attackingUnits.filter(u => u.domain != 'air'),
-               defSubHits);
+    assignHits(
+      defendingUnits.filter((u) => u.domain != "air"), // Can't hit air
+      atkSubHits
+    );
+    assignHits(
+      attackingUnits.filter((u) => u.domain != "air"),
+      defSubHits
+    );
 
-    if (!isDefDestroyer) // Attacker gets surprise strike
-      lostDefendingUnits.push(...util.remove(defendingUnits, u => u.hp <= 0));
+    if (!isDefDestroyer)
+      // Attacker gets surprise strike
+      lostDefendingUnits.push(...util.remove(defendingUnits, (u) => u.hp <= 0));
 
-    if (!isAtkDestroyer) // Defender gets surprise strike
-      lostAttackingUnits.push(...util.remove(attackingUnits, u => u.hp <= 0));
+    if (!isAtkDestroyer)
+      // Defender gets surprise strike
+      lostAttackingUnits.push(...util.remove(attackingUnits, (u) => u.hp <= 0));
 
     // Handle planes separately if they cannot hit subs
     if (!isAtkDestroyer) {
-      let airHits = util.sum(attackingUnits.filter(u => u.domain == 'air'),
-                             u => u.rollAttack());
-      assignHits(defendingUnits.filter(u => !u.isSubmarine), airHits);
+      let airHits = util.sum(
+        attackingUnits.filter((u) => u.domain == "air"),
+        (u) => u.rollAttack()
+      );
+      assignHits(
+        defendingUnits.filter((u) => !u.isSubmarine),
+        airHits
+      );
     }
 
     if (!isDefDestroyer) {
-      let airHits = util.sum(defendingUnits.filter(u => u.domain == 'air'),
-                             u => u.rollDefense());
-      assignHits(attackingUnits.filter(u => !u.isSubmarine), airHits,
-                 battleDomain, options.prioritizeConquest);
+      let airHits = util.sum(
+        defendingUnits.filter((u) => u.domain == "air"),
+        (u) => u.rollDefense()
+      );
+      assignHits(
+        attackingUnits.filter((u) => !u.isSubmarine),
+        airHits,
+        battleDomain,
+        options.prioritizeConquest
+      );
     }
 
     // Calculate hits for remaining attackers
-    let atkHits = util.sum(attackingUnits, u => u.rollAttack());
+    //console.log(units.attack.get("infantry").modCount);
+    let atkHits = util.sum(attackingUnits, (u) => u.rollAttack(u));
 
     // Calculate hits for remaining defenders
-    let defHits = util.sum(defendingUnits, u => u.rollDefense());
+    let defHits = util.sum(defendingUnits, (u) => u.rollDefense(u.defense));
 
     // Assign hits
     assignHits(defendingUnits, atkHits);
-    assignHits(attackingUnits, defHits, battleDomain,
-               options.prioritizeConquest);
+    assignHits(
+      attackingUnits,
+      defHits,
+      battleDomain,
+      options.prioritizeConquest
+    );
 
     // Remove dead units
-    lostDefendingUnits.push(...util.remove(defendingUnits, u => u.hp <= 0));
-    lostAttackingUnits.push(...util.remove(attackingUnits, u => u.hp <= 0));
-	let roundcount = roundcount + 1;
-    if (roundcount>4)
-      break;
-	if (options.oneRoundOnly)
-      break;
+    lostDefendingUnits.push(...util.remove(defendingUnits, (u) => u.hp <= 0));
+    lostAttackingUnits.push(...util.remove(attackingUnits, (u) => u.hp <= 0));
+    let roundcount = roundcount + 1;
+    if (roundcount > 4) break;
+    if (options.oneRoundOnly) break;
   }
 
   // If there are defending units left and they are not all subs, or if there
   // are no more attackers, we can add back the "removed last" units we removed
   // earlier (otherwise they're dead)
-  let isTurkeyShoot = attackingUnits.some(u => u.domain == 'air')
-    && defendingUnits.every(u => u.isSubmarine);
+  let isTurkeyShoot =
+    attackingUnits.some((u) => u.domain == "air") &&
+    defendingUnits.every((u) => u.isSubmarine);
 
-  if ((defendingUnits.length > 0 && !isTurkeyShoot)
-       || attackingUnits.length == 0)
-  {
+  if (
+    (defendingUnits.length > 0 && !isTurkeyShoot) ||
+    attackingUnits.length == 0
+  ) {
     defendingUnits.push(...removeLast);
-  }
-  else {
+  } else {
     lostDefendingUnits.push(...removeLast);
   }
 
   // Count up IPC loss
-  let atkIPCLoss = -util.sum(lostAttackingUnits, u => u.cost);
-  let defIPCLoss = -util.sum(lostDefendingUnits, u => u.cost);
+  let atkIPCLoss = -util.sum(lostAttackingUnits, (u) => u.cost);
+  let defIPCLoss = -util.sum(lostDefendingUnits, (u) => u.cost);
 
   return {
     [ATTACKER_KEY]: atkIPCLoss,
     [DEFENDER_KEY]: defIPCLoss,
-    conquest: wasConquest(attackingUnits, defendingUnits, battleDomain)
+    conquest: wasConquest(attackingUnits, defendingUnits, battleDomain),
   };
 }
 
-export function simulate(units, n, options={}) {
-  console.time('simulate');
+export function simulate(units, n, options = {}) {
+  console.time("simulate");
+  //console.log(units.attack.get("infantry").modCount);
 
   // Recreat oob, since complex obj with methods can't be passed to the worker
   let oob = new OrderOfBattle(units);
-
+  //console.log(JSON.stringify(oob, null, 2));
   let battleDomain = oob.battleDomain;
 
   // Go through and validate unit lists
   // Transform into objects
-  let atk = buildUnits(oob.attackingUnits, oob.unitConfig);
-  let def = buildUnits(oob.defendingUnits, oob.unitConfig);
+  let atk = buildUnits(oob.attackingUnits, oob.unitConfig, true);
+  let def = buildUnits(oob.defendingUnits, oob.unitConfig, false);
 
   // Sort by cost, so lower cost units get hit first
-  atk.sort((a, b) => a.cost > b.cost ? 1 : -1);
-  def.sort((a, b) => a.cost > b.cost ? 1 : -1);
+  atk.sort((a, b) => (a.cost > b.cost ? 1 : -1));
+  def.sort((a, b) => (a.cost > b.cost ? 1 : -1));
 
   let results = [];
 
   // Do n times:
   for (let i = 0; i < n; i++) {
     // Create copies of original arrays
-    let atkThisSim = atk.map(unit => unit.clone());
-    let defThisSim = def.map(unit => unit.clone());
+    let atkThisSim = atk.map((unit) => unit.clone());
+    let defThisSim = def.map((unit) => unit.clone());
 
     // Append simulated battle result
-    let battleResult = simulateOneBattle(atkThisSim, defThisSim,
-                                         battleDomain, options);
+    let battleResult = simulateOneBattle(
+      atkThisSim,
+      defThisSim,
+      battleDomain,
+      options
+    );
     results.push(battleResult);
   }
 
-  console.timeEnd('simulate');
-
+  console.timeEnd("simulate");
+  //console.log(JSON.stringify(results, null, 2));
   return results;
 }
