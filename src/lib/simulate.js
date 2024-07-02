@@ -128,7 +128,7 @@ function simulateOneBattle(attackingUnits,
   // Battle proper ------------------------------------------------------------
   // Put units removed last aside (transports / AA)
   let removeLast = util.remove(defendingUnits, u => u.removedLast);
-
+	let roundcount = 0;
   // While there are still units on both sides:
   while (attackingUnits.length > 0 && defendingUnits.length > 0
           && hitsPossible(attackingUnits, defendingUnits))
@@ -189,8 +189,10 @@ function simulateOneBattle(attackingUnits,
     // Remove dead units
     lostDefendingUnits.push(...util.remove(defendingUnits, u => u.hp <= 0));
     lostAttackingUnits.push(...util.remove(attackingUnits, u => u.hp <= 0));
-
-    if (options.oneRoundOnly)
+	let roundcount = roundcount + 1;
+    if (roundcount>4)
+      break;
+	if (options.oneRoundOnly)
       break;
   }
 
