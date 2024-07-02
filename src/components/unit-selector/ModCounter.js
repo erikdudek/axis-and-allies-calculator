@@ -1,19 +1,19 @@
 import React, { Component } from "react";
 
-import "./UnitCounter.scss";
-import Button from "../Button.js";
+import "./ModCounter.scss";
+import Button2 from "../Button2.js";
 
-class UnitCounter extends Component {
+class ModCounter extends Component {
   handleClick(delta) {
-    this.props.onUpdate(delta);
+    this.props.onUpdateMod(delta);
   }
 
   render() {
-    let classes = this.props.enabled ? "UnitCounter" : "UnitCounter disabled";
+    let classes = this.props.enabled ? "ModCounter" : "ModCounter disabled";
 
     return (
       <div className={classes}>
-        <Button
+        <Button2
           onClick={() => this.handleClick(-1)}
           enabled={this.props.enabled}
         >
@@ -23,11 +23,11 @@ class UnitCounter extends Component {
               d="M416 208H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h384c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
             ></path>
           </svg>
-        </Button>
-        <div className="count-display">
-          <h2 className="count">{this.props.count}</h2>
+        </Button2>
+        <div className="mod-display">
+          <h2 className="mod">{this.props.modCount}</h2>
         </div>
-        <Button
+        <Button2
           onClick={() => this.handleClick(1)}
           enabled={this.props.enabled}
         >
@@ -37,10 +37,10 @@ class UnitCounter extends Component {
               d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"
             ></path>
           </svg>
-        </Button>
+        </Button2>
       </div>
     );
   }
 }
 
-export default UnitCounter;
+export default ModCounter;
