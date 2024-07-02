@@ -1,0 +1,8 @@
+.Button {
+    cursor: pointer;
+    outline: none; // Remove default focus styling in Chrome
+
+    &.disabled {
+        cursor: default;
+    }
+}
