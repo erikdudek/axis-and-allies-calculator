@@ -1,11 +1,11 @@
 @import '../../partials/constants';
 
-.UnitCounter {
+.ModCounter {
     & > * {
         vertical-align: middle;
     }
 
-    .count-display {
+    .mod-display {
         display: inline-block;
         color: #eee;
         background-color: rgba(0, 0, 0, 0.15);
@@ -17,7 +17,7 @@
         margin: 0 2px;
     }
 
-    .count {
+    .mod {
         margin: 0;
         font-size: 2rem;
         position: absolute;
@@ -26,7 +26,7 @@
         transform: translate(-50%, -50%);
     }
 
-    &.disabled .count {
+    &.disabled .mod {
         color: #aaa;
     }
 
