@@ -1,0 +1,74 @@
+@import '../../partials/constants';
+
+.ModCounter {
+    & > * {
+        vertical-align: middle;
+    }
+
+    .mod-display {
+        display: inline-block;
+        color: #eee;
+        background-color: rgba(0, 0, 0, 0.15);
+        width: 23px;
+        height: 23px;
+        border-radius: 50%;
+        position: relative;
+        text-align: center;
+        margin: 0 2px;
+    }
+
+    .mod {
+        margin: 0;
+        font-size: 2rem;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+
+    &.disabled .mod {
+        color: #aaa;
+    }
+
+    @media (min-width: $desktop-width) {
+        .Button:hover:not(.disabled) {
+            color: #333;
+            background-color: #eee;
+        }
+    }
+
+    .Button {
+        font-size: 2rem;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        position: relative;
+        width: 16px;
+        height: 16px;
+        padding: 0px; // Cancels user-agent style!
+        color: inherit;
+        background-color: transparent;
+
+        &:active:not(.disabled) {
+            color: #333;
+            background-color: darken(#eee, 10%);
+        }
+
+        &.disabled {
+            border-color: #aaa;
+        }
+
+        svg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+        }
+
+        svg.plus {
+            width: 7px;
+            height: 7px;
+        }
+    }
+}

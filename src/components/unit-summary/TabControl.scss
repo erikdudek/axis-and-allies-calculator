@@ -1,0 +1,62 @@
+@import '../../partials/palette';
+
+.TabControl {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+
+    li {
+        display: inline-block;
+        padding: 12px;
+        color: #eee;
+        font-size: 1.7rem;
+        width: 60px;
+        text-align: center;
+        border-radius: 12px 12px 0px 0px;
+        cursor: pointer;
+    }
+
+    li:hover {
+        font-weight: bold;
+    }
+
+    .Button {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #eee;
+        background-color: transparent;
+        border: 1px solid #eee;
+        border-radius: 10px;
+        padding: 6px 8px;
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+
+        &.disabled {
+            color: #aaa;
+            border-color: #aaa;
+        }
+
+        &:hover:not(.disabled) {
+            color: #333;
+            background-color: #eee;
+        }
+
+        &:active:not(.disabled) {
+            color: #333;
+            background-color: darken(#eee, 10%);
+        }
+    }
+}
+
+.TabControl.attack li.selected {
+    font-weight: bold;
+    background-color: $attacker-red;
+}
+
+.TabControl.defense li.selected {
+    font-weight: bold;
+    background-color: $defender-blue;
+}

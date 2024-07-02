@@ -1,0 +1,46 @@
+.UnitSelectorItem {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    color: #eee;
+    position: relative;
+
+    &:not(:last-child) {
+        margin-bottom: 18px;
+    }
+
+    &.disabled {
+        border-color: #aaa;
+        color: #aaa;
+    }
+
+    .UnitIcon {
+        margin-right: 12px;
+        flex: 0 0 auto;
+    }
+
+    .unit-info {
+        flex: 1 1 auto;
+    }
+
+    .unit-title {
+        font-size: 1.4rem;
+        margin: 6px 0;
+    }
+
+    .unit-description {
+        font-size: 1.3rem;
+        margin: 6px 0;
+    }
+
+    .unit-cost {
+        font-size: 2rem;
+        margin: 0px 24px;
+    }
+
+    .UnitCounter {
+        flex: 0 0 auto;
+    }
+}

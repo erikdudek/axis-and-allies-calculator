@@ -1,0 +1,28 @@
+.UnitSelectorList {
+    padding: 18px 12px;
+
+    .list-header {
+        text-align: right;
+        color: #eee;
+
+        .head-text {
+            display: inline-block;
+            margin: 0;
+            font-size: 1.6rem;
+        }
+
+        .head-text.units {
+            margin-right: 52px;
+        }
+
+        .head-text.cost {
+            margin-right: 46px;
+        }
+    }
+
+    & > ul {
+        margin: 0;
+        padding: 12px 0;
+        list-style: none;
+    }
+}
