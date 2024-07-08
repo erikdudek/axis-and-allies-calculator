@@ -128,17 +128,7 @@ export default {
     move: 2,
     domain: "land",
     hp: 2,
-    factory: function (buildState) {
-      return new TwoHPUnit(
-        this.attack,
-        this.defense,
-        this.cost,
-        this.domain,
-        this.hp,
-        buildState.isAttacker,
-        buildState.modCount
-      );
-    },
+    factory: basicUnit,
     valid: valid.landUnit,
   },
   aa: {
