@@ -102,7 +102,7 @@ function simulateOneBattle(
   battleDomain,
   options
 ) {
-  //Combat Structure:
+  //Once all changes are made this should be the Combat Structure:
   // 1: Apply tech/bonuses that only occur on X turn
   // 2: Calculate support & adjust units for the round (based on flag adjust loss order)
   // 3. Determine how submarines act
