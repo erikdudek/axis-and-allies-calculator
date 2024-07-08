@@ -354,4 +354,16 @@ export default {
     },
     valid: valid.bombard,
   },
+  dambattleship: {
+    name: "Damaged Battleship",
+    symbol: "DBB",
+    attack: 8,
+    defense: 8,
+    cost: 40,
+    move: 2,
+    domain: "sea",
+    hp: 1,
+    factory: basicUnit,
+    valid: valid.bombard,
+  },
 };
