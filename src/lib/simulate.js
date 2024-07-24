@@ -102,6 +102,15 @@ function simulateOneBattle(
   battleDomain,
   options
 ) {
+  //Once all changes are made this should be the Combat Structure:
+  // 1: Apply tech/bonuses that only occur on X turn
+  // 2: Calculate support & adjust units for the round (based on flag adjust loss order)
+  // 3. Determine how submarines act
+  // 4. Execute First Strike round (Bombard, AAFS, etc.)
+  // 5. Calculate support & adjust units for the round (based on flag adjust loss order)
+  // 6. Have all other units fight
+  // 7. Check for round limit
+
   let lostAttackingUnits = [];
   let lostDefendingUnits = [];
 
@@ -136,6 +145,7 @@ function simulateOneBattle(
   // Put units removed last aside (transports / AA)
   let removeLast = util.remove(defendingUnits, (u) => u.removedLast);
   let roundcount = 0;
+  console.log(roundcount);
   // While there are still units on both sides:
   while (
     attackingUnits.length > 0 &&
@@ -221,7 +231,9 @@ function simulateOneBattle(
     // Remove dead units
     lostDefendingUnits.push(...util.remove(defendingUnits, (u) => u.hp <= 0));
     lostAttackingUnits.push(...util.remove(attackingUnits, (u) => u.hp <= 0));
+    //console.log(roundcount);
     let roundcount = roundcount + 1;
+    //console.log(roundcount);
     if (roundcount > 4) break;
     if (options.oneRoundOnly) break;
   }
