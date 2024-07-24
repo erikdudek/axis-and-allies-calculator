@@ -128,7 +128,17 @@ export default {
     move: 2,
     domain: "land",
     hp: 2,
-    factory: basicUnit,
+    factory: function (buildState) {
+      return new TwoHPUnit(
+        this.attack,
+        this.defense,
+        this.cost,
+        this.domain,
+        this.hp,
+        buildState.isAttacker,
+        buildState.modCount
+      );
+    },
     valid: valid.landUnit,
   },
   aa: {
@@ -352,18 +362,6 @@ export default {
         buildState.modCount
       );
     },
-    valid: valid.bombard,
-  },
-  dambattleship: {
-    name: "Damaged Battleship",
-    symbol: "DBB",
-    attack: 8,
-    defense: 8,
-    cost: 40,
-    move: 2,
-    domain: "sea",
-    hp: 1,
-    factory: basicUnit,
     valid: valid.bombard,
   },
 };

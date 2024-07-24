@@ -102,15 +102,6 @@ function simulateOneBattle(
   battleDomain,
   options
 ) {
-  //Once all changes are made this should be the Combat Structure:
-  // 1: Apply tech/bonuses that only occur on X turn
-  // 2: Calculate support & adjust units for the round (based on flag adjust loss order)
-  // 3. Determine how submarines act
-  // 4. Execute First Strike round (Bombard, AAFS, etc.)
-  // 5. Calculate support & adjust units for the round (based on flag adjust loss order)
-  // 6. Have all other units fight
-  // 7. Check for round limit
-
   let lostAttackingUnits = [];
   let lostDefendingUnits = [];
 

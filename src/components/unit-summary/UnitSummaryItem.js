@@ -1,19 +1,17 @@
-import React, { Component } from "react";
+import React, { Component } from 'react';
 
-import UnitIcon from "../UnitIcon.js";
+import UnitIcon from '../UnitIcon.js';
 
-import "./UnitSummaryItem.scss";
+import './UnitSummaryItem.scss';
 
 function UnitSummaryItem(props) {
   return (
     <div className="UnitSummaryItem">
-      <UnitIcon
-        role={props.role}
-        unit={props.unit}
-        counts={props.counts}
-        isValid={props.isValid}
-      />
-      <h3 className="count">x {props.counts.count}</h3>
+      <UnitIcon role={props.role}
+                unit={props.unit}
+                count={props.count}
+                isValid={props.isValid} />
+      <h3 className="count">x {props.count}</h3>
     </div>
   );
 }
