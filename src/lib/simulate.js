@@ -1,14 +1,16 @@
 import * as util from "./util.js";
 import { OrderOfBattle } from "./order-of-battle.js";
 import { ATTACKER_KEY, DEFENDER_KEY } from "./simulation-results.js";
-
-function buildUnits(unitCounts, unitConfig, isAttacker) {
+let roundcount = 0;
+//console.log("Round Count Initilaized ", roundcount, typeof roundcount);
+function buildUnits(unitCounts, unitConfig, isAttacker, roundcount) {
   let numArty = unitCounts.has("artillery") ? unitCounts.get("artillery") : 0;
-
-  // This goes through each of the units and crating them
+  console.log("Artillery:", numArty);
+  // This goes through each of the units and creating them
   // One example of this loop is unitType = "infantry", counts = { count: 2, modCount: 1 }
   // or unitType = "artillery", counts = { count: 2, modCount: 1 }
   let units = Array.from(unitCounts.entries()).map(([unitType, counts]) => {
+    console.log("Counts:", counts.count);
     if (!(unitType in unitConfig)) throw `Unknown unit type: ${unitType}`;
 
     let buildState = {
@@ -18,13 +20,19 @@ function buildUnits(unitCounts, unitConfig, isAttacker) {
     };
 
     let stats = unitConfig[unitType];
-    return Array(counts)
+    return Array(counts.count)
       .fill(null)
       .map(() => stats.factory(buildState));
   });
+  //Check if it's the first round
+  if (roundcount < 1) {
+    console.log("FirstRound");
+  } else {
+    console.log("NotFirstRound");
+  }
 
   // Flatten
-
+  //console.log("Units:", units);
   return units.reduce((a, b) => a.concat(b), []);
 }
 
@@ -55,6 +63,8 @@ function assignHits(
   prioritizeConquest = false
 ) {
   // First, hit 2 hp battleships should work the same for 2HP other units
+  console.log("Unit Length:", units.length);
+  console.log("Units:", units);
   for (let i = 0; i < units.length; i++) {
     let u = units[i];
 
@@ -100,7 +110,8 @@ function simulateOneBattle(
   attackingUnits,
   defendingUnits,
   battleDomain,
-  options
+  options,
+  roundcount
 ) {
   //Once all changes are made this should be the Combat Structure:
   // 1: Apply tech/bonuses that only occur on X turn
@@ -144,7 +155,7 @@ function simulateOneBattle(
   // Battle proper ------------------------------------------------------------
   // Put units removed last aside (transports / AA)
   let removeLast = util.remove(defendingUnits, (u) => u.removedLast);
-  let roundcount = 0;
+
   // While there are still units on both sides:
   while (
     attackingUnits.length > 0 &&
@@ -230,7 +241,9 @@ function simulateOneBattle(
     // Remove dead units
     lostDefendingUnits.push(...util.remove(defendingUnits, (u) => u.hp <= 0));
     lostAttackingUnits.push(...util.remove(attackingUnits, (u) => u.hp <= 0));
-    let roundcount = roundcount + 1;
+    console.log("Round before addtion", roundcount, typeof roundcount);
+    roundcount = roundcount + 1;
+    //console.log("Round after ", roundcount, typeof roundcount);
     if (roundcount > 4) break;
     if (options.oneRoundOnly) break;
   }
@@ -273,8 +286,8 @@ export function simulate(units, n, options = {}) {
 
   // Go through and validate unit lists
   // Transform into objects
-  let atk = buildUnits(oob.attackingUnits, oob.unitConfig, true);
-  let def = buildUnits(oob.defendingUnits, oob.unitConfig, false);
+  let atk = buildUnits(oob.attackingUnits, oob.unitConfig, true, roundcount);
+  let def = buildUnits(oob.defendingUnits, oob.unitConfig, false, roundcount);
 
   // Sort by cost, so lower cost units get hit first
   atk.sort((a, b) => (a.cost > b.cost ? 1 : -1));
@@ -293,7 +306,8 @@ export function simulate(units, n, options = {}) {
       atkThisSim,
       defThisSim,
       battleDomain,
-      options
+      options,
+      roundcount
     );
     results.push(battleResult);
   }
