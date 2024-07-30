@@ -34,8 +34,8 @@ export class Unit {
   rollAttack(modcount) {
     if (this.rolledThisRound) return false;
 
-    console.log(this.modCount);
-
+    console.log("Modifer:", this.modCount);
+    console.log("attack:", this.attack);
     this.rolledThisRound = true;
     return roll() <= this.attack + this.modCount;
   }
