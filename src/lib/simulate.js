@@ -2,6 +2,7 @@ import * as util from "./util.js";
 import { OrderOfBattle } from "./order-of-battle.js";
 import { ATTACKER_KEY, DEFENDER_KEY } from "./simulation-results.js";
 let roundcount = 0;
+let maxturn = 3;
 //console.log("Round Count Initilaized ", roundcount, typeof roundcount);
 function buildUnits(unitCounts, unitConfig, isAttacker, roundcount) {
   let numArty = unitCounts.has("artillery") ? unitCounts.get("artillery") : 0;
@@ -111,7 +112,8 @@ function simulateOneBattle(
   defendingUnits,
   battleDomain,
   options,
-  roundcount
+  roundcount,
+  maxturn
 ) {
   //Once all changes are made this should be the Combat Structure:
   // 1: Apply tech/bonuses that only occur on X turn
@@ -124,7 +126,7 @@ function simulateOneBattle(
 
   let lostAttackingUnits = [];
   let lostDefendingUnits = [];
-
+  console.log("Maxturn:", maxturn);
   // Handle bombardment -------------------------------------------------------
   if (battleDomain == "land") {
     let numHits = util.sum(attackingUnits, (u) => u.rollBombard());
@@ -244,6 +246,7 @@ function simulateOneBattle(
     console.log("Round before addtion", roundcount, typeof roundcount);
     roundcount = roundcount + 1;
     //console.log("Round after ", roundcount, typeof roundcount);
+
     if (roundcount > 4) break;
     if (options.oneRoundOnly) break;
   }

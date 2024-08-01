@@ -36,8 +36,13 @@ export class Unit {
 
     console.log("Modifer:", this.modCount);
     console.log("attack:", this.attack);
+    console.log("This:", this);
     this.rolledThisRound = true;
-    return roll() <= this.attack + this.modCount;
+    let rollvalue = roll();
+    //console.log("Roll1", rollvalue);
+    //The following is for Japan being shamed, will need to be a boolean value
+    //if (rollvalue > 10) {      this.hp = 0;      return false;    } else { return rollvalue <= this.attack + this.modCount;     }
+    return rollvalue <= this.attack + this.modCount;
   }
 
   rollDefense(modcount) {
@@ -46,7 +51,10 @@ export class Unit {
     //console.log(modcount);
 
     this.rolledThisRound = true;
-    return roll() <= this.defense + this.modCount;
+    let rollvalue = roll();
+    //The following is for Japan being shamed, will need to be a boolean value
+    //if (rollvalue > 10) {      this.hp = 0;      return false;    } else { return rollvalue <= this.attack + this.modCount;     }
+    return rollvalue <= this.defense + this.modCount;
   }
 
   rollBombard() {
