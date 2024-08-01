@@ -16,7 +16,7 @@ import {
   OrderOfBattle,
 } from "../lib/order-of-battle.js";
 
-const N = 1000;
+const N = 10000;
 const workerInstance = simulateWorker();
 
 class Simulator extends Component {

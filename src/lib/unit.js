@@ -36,8 +36,17 @@ export class Unit {
 
     console.log("Modifer:", this.modCount);
     console.log("attack:", this.attack);
+
     this.rolledThisRound = true;
-    return roll() <= this.attack + this.modCount;
+    let rollvalue = roll();
+    console.log("Roll1", rollvalue);
+    if (rollvalue > 10) {
+      this.hp = 0;
+      console.log("this", this);
+      return false;
+    } else {
+      return rollvalue <= this.attack + this.modCount;
+    }
   }
 
   rollDefense(modcount) {
